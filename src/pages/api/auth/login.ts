@@ -14,8 +14,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse<
   }
 
   try {
-    // Use /api/authentication/sso-login/
-    const apiRes = await fetch(`${process.env.API_URL}/api/authentication/sso-login/`, {
+    const { 'hash-device': hashDevice } = req.body;
+    
+    // Choose endpoint based on Device Hash presence
+    const endpoint = hashDevice 
+      ? '/api/authentication/secure-device-login/' 
+      : '/api/authentication/sso-login/';
+
+    const apiRes = await fetch(`${process.env.API_URL}${endpoint}`, {
       method: 'POST',
       headers: {
         Accept: 'application/json',

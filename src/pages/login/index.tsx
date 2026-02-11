@@ -3,7 +3,7 @@ import { ToastError, ToastSuccess } from '@/components/toast/alerts';
 import { loadProfile, loadUser, setLoginSuccess } from '@/redux/actions/auth/actions';
 import login, { LoginProps } from '@/utils/api/auth/Login';
 import verifyOTPLogin, { SendVerifyOTPLoginProps } from '@/utils/api/auth/VerifyOTPLogin';
-import { ShieldCheck, HelpCircle, LifeBuoy, Globe, Facebook, Twitter, Instagram, Eye, EyeOff } from 'lucide-react';
+import { ShieldCheck, HelpCircle, LifeBuoy, Globe, Facebook, Twitter, Instagram, Eye, EyeOff, ShieldAlert } from 'lucide-react';
 import Head from 'next/head';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -12,6 +12,7 @@ import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { UnknownAction } from 'redux';
 import { ThunkDispatch } from 'redux-thunk';
+import { useDeviceHash } from '@/hooks/useDeviceHash';
 
 export default function LoginPage() {
   const [email, setEmail] = useState<string>('');
@@ -22,20 +23,36 @@ export default function LoginPage() {
   const [loading, setLoading] = useState<boolean>(false);
   const [otpMessage, setOtpMessage] = useState<string>('');
 
+  // Hook del Agente de Seguridad
+  const { deviceData, isAgentActive } = useDeviceHash();
+
   const dispatch: ThunkDispatch<any, any, UnknownAction> = useDispatch();
   const router = useRouter();
 
   const handleOnSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       ToastError('Por favor ingresa un correo válido');
       return;
     }
-    const loginData: LoginProps = { email, password };
+    const loginData: LoginProps = {
+      email,
+      password,
+      'hash-device': deviceData?.hash,
+      componentes: deviceData?.componentes
+    };
+
     try {
       setLoading(true);
       const res = await login(loginData);
+
+      // Fix for "Property 'json' does not exist" lint error
+      if (!('json' in res)) {
+        throw new Error("Error de conexión con el servidor");
+      }
+
       const data = await res.json();
 
       if (res.status === 200) {
@@ -47,14 +64,14 @@ export default function LoginPage() {
           await dispatch(loadProfile());
           await dispatch(loadUser());
           await dispatch(setLoginSuccess());
-          ToastSuccess('Inicio de sesión exitoso');
+          ToastSuccess(data.results.message || 'Inicio de sesión exitoso');
           router.push('/dashboard');
         }
       } else {
         ToastError(data.error || 'Credenciales inválidas');
       }
-    } catch (err) {
-      ToastError(`Error: ${err}`);
+    } catch (err: any) {
+      ToastError(`Error: ${err.message || err}`);
     } finally {
       setLoading(false);
     }
@@ -147,6 +164,14 @@ export default function LoginPage() {
               <p className="text-sm text-slate-400">
                 {step === 1 ? 'Ingresa tus credenciales institucionales' : 'Verifica tu identidad para continuar'}
               </p>
+
+              {/* Agent Status Indicator */}
+              {isAgentActive && (
+                <div className="mt-4 flex items-center justify-center gap-2 rounded-lg bg-green-500/10 p-2 text-green-400 border border-green-500/20">
+                  <ShieldCheck size={18} />
+                  <span className="text-xs font-semibold">Agente de Seguridad Activo</span>
+                </div>
+              )}
             </div>
 
             {/* Form */}

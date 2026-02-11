@@ -1,10 +1,17 @@
 export interface LoginProps {
   email: string;
   password: string;
+  'hash-device'?: string;
+  componentes?: any;
 }
 
-const login = async ({ email, password }: LoginProps) => {
-  const body = JSON.stringify({ email, password });
+const login = async ({ email, password, 'hash-device': hashDevice, componentes }: LoginProps) => {
+  const body = JSON.stringify({ 
+    email, 
+    password, 
+    'hash-device': hashDevice,
+    componentes 
+  });
 
   try {
     const res = await fetch('/api/auth/login', {
