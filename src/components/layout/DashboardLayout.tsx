@@ -2,6 +2,7 @@ import Head from 'next/head';
 import { useState } from 'react';
 import AppSidebar from './AppSidebar';
 import AppHeader from './AppHeader';
+import AppFooter from './AppFooter';
 
 interface DashboardLayoutProps {
     children: React.ReactNode;
@@ -35,6 +36,8 @@ export default function DashboardLayout({ children, title = 'UAGRM' }: Dashboard
                             {children}
                         </div>
                     </div>
+
+                    <AppFooter />
                 </main>
             </div>
         </div>
