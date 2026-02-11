@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { LayoutDashboard, Grid, Settings, ShieldCheck } from 'lucide-react';
+import { LayoutDashboard, Grid, Settings, ShieldCheck, Shield } from 'lucide-react';
 
 interface AppSidebarProps {
     sidebarOpen: boolean;
@@ -11,6 +11,7 @@ export default function AppSidebar({ sidebarOpen, setSidebarOpen }: AppSidebarPr
 
     const navigation = [
         { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+        { name: 'Dispositivos', href: '/admin/devices', icon: Shield },
         { name: 'Todos los Sistemas', href: '#', icon: Grid },
         { name: 'Configuración', href: '/profile/security', icon: Settings },
     ];
@@ -50,8 +51,8 @@ export default function AppSidebar({ sidebarOpen, setSidebarOpen }: AppSidebarPr
                                         if (item.href !== '#') router.push(item.href);
                                     }}
                                     className={`w-full group flex items-center rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 ${active
-                                            ? 'bg-red-600 text-white shadow-lg shadow-red-900/20'
-                                            : 'text-slate-400 hover:bg-white/5 hover:text-white'
+                                        ? 'bg-red-600 text-white shadow-lg shadow-red-900/20'
+                                        : 'text-slate-400 hover:bg-white/5 hover:text-white'
                                         }`}
                                 >
                                     <item.icon size={20} className="mr-3" />
